@@ -1,0 +1,32 @@
+# Gradle
+.gradle/
+build/
+bin/
+out/
+*.iml
+.idea/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# Server files
+run/
+*.log
+*.log.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.jar
+!gradle-wrapper.jar
+
+# Local configuration
+local.properties
+

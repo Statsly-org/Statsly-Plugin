@@ -1,0 +1,12 @@
+name: Statsly
+version: '1.0.0'
+main: me.Statix
+api-version: '1.21'
+load: STARTUP
+authors: [ Statix ]
+
+commands:
+  statsly:
+    description: Statsly Dashboard System command
+    usage: /<command> setup
+    aliases: [stx]
