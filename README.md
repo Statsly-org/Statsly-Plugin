@@ -23,7 +23,7 @@ Statsly is a comprehensive statistics tracking plugin for Minecraft servers that
 - ✅ **PurpurMC** - All versions 1.21+
 - ✅ **CraftBukkit** - All versions 1.21+
 
-> **Note:** For Folia/CanvasMC servers, use [Statsly-Folia](https://github.com/yourusername/Statsly-Folia) instead.
+> **Note:** For Folia/CanvasMC servers, use [Statsly-Folia](https://github.com/Statsly-org/Statsly-Folia) instead.
 
 ## Requirements
 
