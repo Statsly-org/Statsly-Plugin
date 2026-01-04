@@ -62,8 +62,6 @@ The plugin automatically creates a `config.yml` file in the `plugins/Statsly/` d
 serverUuid: ""  # Automatically set during setup
 ```
 
-> **Important:** The API secret is stored in memory only and never saved to disk for security.
-
 ## Statistics Collected
 
 - Current player count
@@ -104,7 +102,7 @@ The compiled JAR will be in `build/libs/`.
 
 1. Verify the server is connected: Check if `serverUuid` is set in `config.yml`
 2. Check API connection: Ensure the Statsly backend is running on `https://api.statsly.org`
-3. Verify IP/Port: Make sure your server IP and port match the registered values
+3. Verify IP/Port: Make sure your server IP and port match the registered values (Open Support Ticket for that)
 4. Check logs: Look for error messages in `logs/latest.log`
 
 ### Authentication failed
