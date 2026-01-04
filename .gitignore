@@ -11,6 +11,8 @@ out/
 .project
 .settings/
 
+build/resources
+
 # VS Code
 .vscode/
 
