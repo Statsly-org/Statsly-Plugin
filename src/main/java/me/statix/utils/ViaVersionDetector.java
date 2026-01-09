@@ -58,7 +58,15 @@ public class ViaVersionDetector {
         return false;
     }
     
-
+    /**
+     * Gets the protocol version of a player using ViaVersion API.
+     * Uses reflection to access ViaVersion's API methods, supporting multiple
+     * ViaVersion versions and API changes.
+     * Tries multiple method signatures to ensure compatibility.
+     * 
+     * @param player The player to get the protocol version for
+     * @return The protocol version number, or -1 if unavailable
+     */
     public static int getPlayerProtocolVersion(Player player) {
         if (!isViaVersionAvailable()) {
             return -1;
@@ -190,6 +198,13 @@ public class ViaVersionDetector {
         return "Protocol " + protocolVersion;
     }
     
+    /**
+     * Collects the version distribution of all online players.
+     * Uses ViaVersion to get each player's protocol version and converts it
+     * to a readable Minecraft version string.
+     * 
+     * @return A map of version strings to player counts, or null if ViaVersion is unavailable
+     */
     public static Map<String, Integer> collectVersionDistribution() {
         if (!isViaVersionAvailable()) {
             return null;

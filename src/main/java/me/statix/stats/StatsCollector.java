@@ -21,6 +21,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class StatsCollector {
     
+    /**
+     * WARNING: Do NOT modify this value - will result in PERMANENT BAN
+     * The interval of 1800 seconds (30 minutes) is enforced by the API.
+     * Changing this violates API terms and leads to immediate server banning.
+     */
     private static final int REPORT_INTERVAL_SECONDS = 1800;
     private static final int STARTUP_DELAY_SECONDS = 150;
     
@@ -81,6 +86,20 @@ public class StatsCollector {
         leavesSinceLastReport++;
     }
     
+    /**
+     * Collects server statistics and sends them to the API.
+     * This method gathers:
+     * - Current player count
+     * - Version distribution (via ViaVersion if available)
+     * - Launcher distribution (Lunar, Badlion, etc.)
+     * - Mod loader distribution (Fabric, Forge, Quilt, etc.)
+     * - Server software type (Paper, Spigot, Folia, etc.)
+     * - Server uptime
+     * 
+     * The data is sent asynchronously with HMAC-SHA256 signature for authentication.
+     * 
+     * @param serverUuid The unique server identifier
+     */
     private void sendStats(String serverUuid) {
         int currentPlayers = Bukkit.getOnlinePlayers().size();
         
@@ -165,6 +184,12 @@ public class StatsCollector {
                     buildId
                 );
                 
+                /**
+                 * WARNING: 
+                 * - NEVER save the API secret to disk (config.yml, files, etc.) - will result in PERMANENT BAN
+                 * - The secret MUST only be stored in memory
+                 * - Never log, print, or expose the API secret in any form
+                 */
                 String apiSecret = plugin.getApiSecret();
                 if (apiSecret == null || apiSecret.isEmpty()) {
                     plugin.getLogger().severe("API secret not available! Cannot send stats with HMAC signature.");
@@ -172,6 +197,9 @@ public class StatsCollector {
                     return;
                 }
                 
+                /**
+                 * WARNING: Do NOT modify the signature generation algorithm - will result in PERMANENT BAN
+                 */
                 String hmacSignature = generateHmacSignature(jsonPayload, apiSecret);
                 
                 conn.setRequestProperty("X-Statsly-Signature", hmacSignature);
@@ -252,7 +280,16 @@ public class StatsCollector {
         return responseBody;
     }
     
-
+    /**
+     * Detects the server software type by checking for specific classes.
+     * Uses reflection to identify the server software without requiring dependencies.
+     * Checks in order: Folia, Canvas, LeafMC, PurpurMC, Paper, Spigot, CraftBukkit.
+     * 
+     * This is necessary because different server software types may have different
+     * capabilities or require different handling.
+     * 
+     * @return The detected server software name (e.g., "Paper", "Spigot", "Folia")
+     */
     private String detectServerSoftware() {
         try {
             boolean isFolia = false;
@@ -362,6 +399,14 @@ public class StatsCollector {
         }
     }
     
+    /**
+     * Recursively converts a Map to a JSON string.
+     * Handles nested maps, numbers, booleans, and strings.
+     * Used to serialize metadata before sending to the API.
+     * 
+     * @param map The map to convert to JSON
+     * @return A JSON string representation of the map
+     */
     @SuppressWarnings("unchecked")
     private String mapToJson(Map<String, Object> map) {
         StringBuilder json = new StringBuilder("{");
@@ -386,6 +431,17 @@ public class StatsCollector {
     }
     
 
+    /**
+     * Generates HMAC-SHA256 signature for API request authentication.
+     * 
+     * WARNING: Do NOT modify this function - will result in PERMANENT BAN
+     * - Changing the algorithm (HmacSHA256) violates API terms
+     * - Never log or expose the secret parameter
+     * 
+     * @param payload JSON payload to sign
+     * @param secret API secret (never log this value)
+     * @return Hexadecimal HMAC signature string
+     */
     private String generateHmacSignature(String payload, String secret) {
         try {
             Mac mac = Mac.getInstance("HmacSHA256");

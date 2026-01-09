@@ -43,6 +43,14 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         return getApiUrl() + "/api/servers/get-secret";
     }
     
+    /**
+     * Retrieves the API secret from the backend.
+     * 
+     * WARNING: 
+     * - NEVER save the API secret to disk (config.yml, files, etc.) - this will result in a PERMANENT BAN
+     * - The secret MUST only be stored in memory
+     * - Never log or expose the API secret in any form
+     */
     private void retrieveApiSecret(String serverUuid, CommandSender sender, BukkitRunnable runnable) {
         try {
             HttpURLConnection conn = createConnection(getSecretUrl());
@@ -84,6 +92,14 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         }
     }
     
+    /**
+     * Extracts the API secret from the JSON response.
+     * 
+     * WARNING: 
+     * - NEVER save this secret to disk - will result in PERMANENT BAN
+     * - Secret must only exist in memory
+     * - Never log, print, or expose the extracted secret
+     */
     private String extractApiSecret(String responseBody) {
         if (responseBody == null || responseBody.isEmpty()) {
             return null;
@@ -118,7 +134,6 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleSetup(CommandSender sender, String code) {
-        // Determine Minecraft username (player name or "CONSOLE")
         final String minecraftUser = (sender instanceof Player) 
             ? ((Player) sender).getName() 
             : "CONSOLE";
@@ -166,6 +181,14 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         });
     }
 
+    /**
+     * Creates and configures an HTTP connection to the API.
+     * Sets up POST method, JSON content type, and timeout values.
+     * 
+     * @param url The API endpoint URL
+     * @return Configured HttpURLConnection ready for use
+     * @throws Exception If connection setup fails
+     */
     private HttpURLConnection createConnection(String url) throws Exception {
         URI uri = new URI(url);
         HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
@@ -177,6 +200,14 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         return conn;
     }
 
+    /**
+     * Sends a JSON payload to the HTTP connection.
+     * Writes the payload bytes to the connection's output stream.
+     * 
+     * @param conn The HTTP connection to send data to
+     * @param jsonPayload The JSON string to send
+     * @throws Exception If writing to the stream fails
+     */
     private void sendRequest(HttpURLConnection conn, String jsonPayload) throws Exception {
         try (OutputStream os = conn.getOutputStream()) {
             byte[] input = jsonPayload.getBytes(StandardCharsets.UTF_8);
@@ -184,6 +215,15 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    /**
+     * Reads the response from an HTTP connection.
+     * Reads from either the input stream (success) or error stream (failure).
+     * 
+     * @param conn The HTTP connection to read from
+     * @param success Whether to read from input stream (true) or error stream (false)
+     * @return The response body as a string
+     * @throws Exception If reading the response fails
+     */
     private String readResponse(HttpURLConnection conn, boolean success) throws Exception {
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(
@@ -198,6 +238,13 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    /**
+     * Parses an error message from a JSON response body.
+     * Looks for "error" or "message" fields in the JSON.
+     * 
+     * @param responseBody The JSON response string
+     * @return The extracted error message, or "Unknown error" if not found
+     */
     private String parseErrorMessage(String responseBody) {
         if (responseBody == null || responseBody.isEmpty()) {
             return "Unknown error";
@@ -231,6 +278,14 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         return plugin;
     }
     
+    /**
+     * Polls the API to check if the server UUID has been assigned after code validation.
+     * 
+     * WARNING: 
+     * - Do NOT modify the polling interval (100 ticks = 5 seconds) - will result in PERMANENT BAN
+     * - Do NOT increase maxAttempts (60) - will result in PERMANENT BAN
+     * - Changing intervals or request frequencies violates API terms and leads to immediate banning
+     */
     private void startCheckingForUuid(String code, CommandSender sender) {
         class RunnableHolder {
             BukkitRunnable runnable;
@@ -239,6 +294,9 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         
         holder.runnable = new BukkitRunnable() {
             private int attempts = 0;
+            /**
+             * WARNING: Do NOT modify this value - will result in PERMANENT BAN
+             */
             private final int maxAttempts = 60;
             
             @Override
@@ -306,6 +364,9 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
                 });
             }
         };
+        /**
+         * WARNING: Do NOT modify the polling interval (100L ticks = 5 seconds) - will result in PERMANENT BAN
+         */
         holder.runnable.runTaskTimer(getPlugin(), 100L, 100L);
     }
 

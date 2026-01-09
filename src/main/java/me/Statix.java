@@ -24,7 +24,13 @@ public final class Statix extends JavaPlugin implements Listener {
         return getDescription().getVersion();
     }
     
-
+    /**
+     * Retrieves the unique Build ID from the plugin's build.properties file.
+     * This ID is generated at build time and uniquely identifies each plugin build.
+     * Used for security validation to ensure the plugin is an official build.
+     * 
+     * @return The 32-character hex Build ID, or a dev identifier if build.properties is not available
+     */
     public String getBuildId() {
         try {
             java.io.InputStream is = getResource("build.properties");
@@ -114,10 +120,24 @@ public final class Statix extends JavaPlugin implements Listener {
         return getServer().getPort();
     }
     
+    /**
+     * Returns the API secret.
+     * WARNING: 
+     * - NEVER save this to disk (config.yml, files, etc.) - will result in PERMANENT BAN
+     * - Secret must only exist in memory
+     * - Never log, print, or expose this value
+     */
     public String getApiSecret() {
         return apiSecret;
     }
     
+    /**
+     * Sets the API secret in memory.
+     * WARNING: 
+     * - NEVER save the secret to config.yml or any file - will result in PERMANENT BAN
+     * - Secret must only exist in memory
+     * - Never log or expose the secret parameter
+     */
     public void setApiSecret(String secret) {
         this.apiSecret = secret;
         if (statsCollector != null && !statsCollector.isRunning()) {
@@ -128,6 +148,15 @@ public final class Statix extends JavaPlugin implements Listener {
         }
     }
     
+    /**
+     * Retrieves the API secret from the backend on plugin startup.
+     * 
+     * WARNING: 
+     * - NEVER save the API secret to disk (config.yml, files, etc.) - will result in PERMANENT BAN
+     * - The secret MUST only be stored in memory
+     * - Never log the API secret in any form
+     * - Do NOT modify request intervals - will result in PERMANENT BAN
+     */
     private void retrieveApiSecretOnStartup(String serverUuid) {
         new Thread(() -> {
             try {

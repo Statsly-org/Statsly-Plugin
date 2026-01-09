@@ -4,7 +4,14 @@ import org.bukkit.entity.Player;
 
 public class ClientDetector {
     
-
+    /**
+     * Parses the client brand string to identify the Minecraft client type.
+     * Detects various clients including Fabric mods, Forge, OptiFine, Lunar Client,
+     * Badlion, LabyMod, and custom clients.
+     * 
+     * @param brand The raw client brand string from the player
+     * @return A human-readable client name (e.g., "Lunar Client", "Fabric Client")
+     */
     public static String parseClientBrand(String brand) {
         if (brand == null || brand.isEmpty()) {
             return "Vanilla Minecraft";
@@ -61,7 +68,15 @@ public class ClientDetector {
         return "Custom Client (" + brand + ")";
     }
     
-
+    /**
+     * Detects client information for a player using reflection.
+     * Extracts the client brand name and determines the launcher and mod loader.
+     * Uses reflection to access the getClientBrandName() method which may not
+     * be available in all Bukkit/Spigot versions.
+     * 
+     * @param player The player to detect client info for
+     * @return ClientInfo object containing client name, launcher, and mod loader
+     */
     public static ClientInfo getClientInfo(Player player) {
         try {
             String clientBrand = null;
