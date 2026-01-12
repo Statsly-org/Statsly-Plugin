@@ -21,52 +21,36 @@ public class ViaVersionDetector {
             return viaVersionAvailable;
         }
         
-        try {
-            Plugin viaVersion = Bukkit.getPluginManager().getPlugin("ViaVersion");
-            if (viaVersion != null && viaVersion.isEnabled()) {
-                String[] possibleClasses = {
-                    "com.viaversion.viaversion.api.Via",
-                    "us.myles.ViaVersion.api.ViaVersionAPI",
-                    "com.viaversion.viaversion.api.ViaAPI"
-                };
-                
-                for (String className : possibleClasses) {
-                    try {
-                        Class<?> viaClass = Class.forName(className);
-                        try {
-                            java.lang.reflect.Method getAPIMethod = viaClass.getMethod("getAPI");
-                            Object api = getAPIMethod.invoke(null);
-                            if (api != null) {
-                                viaVersionAvailable = true;
-                                return true;
-                            }
-                        } catch (NoSuchMethodException | java.lang.reflect.InvocationTargetException e) {
-                            continue;
-                        }
-                    } catch (ClassNotFoundException e) {
-                        continue;
-                    }
+        Plugin viaVersion = Bukkit.getPluginManager().getPlugin("ViaVersion");
+        if (viaVersion == null || !viaVersion.isEnabled()) {
+            viaVersionAvailable = false;
+            return false;
+        }
+        
+        String[] possibleClasses = {
+            "com.viaversion.viaversion.api.Via",
+            "us.myles.ViaVersion.api.ViaVersionAPI",
+            "com.viaversion.viaversion.api.ViaAPI"
+        };
+        
+        for (String className : possibleClasses) {
+            try {
+                Class<?> viaClass = Class.forName(className);
+                java.lang.reflect.Method getAPIMethod = viaClass.getMethod("getAPI");
+                Object api = getAPIMethod.invoke(null);
+                if (api != null) {
+                    viaVersionAvailable = true;
+                    return true;
                 }
-                
-                viaVersionAvailable = true;
-                return true;
+            } catch (Exception e) {
+                // try next class
             }
-        } catch (Exception e) {
         }
         
         viaVersionAvailable = false;
         return false;
     }
     
-    /**
-     * Gets the protocol version of a player using ViaVersion API.
-     * Uses reflection to access ViaVersion's API methods, supporting multiple
-     * ViaVersion versions and API changes.
-     * Tries multiple method signatures to ensure compatibility.
-     * 
-     * @param player The player to get the protocol version for
-     * @return The protocol version number, or -1 if unavailable
-     */
     public static int getPlayerProtocolVersion(Player player) {
         if (!isViaVersionAvailable()) {
             return -1;
@@ -129,18 +113,12 @@ public class ViaVersionDetector {
                 }
             }
         } catch (Exception e) {
-            // ViaVersion API not accessible or player not fully logged in
-            // This is expected for players who just joined (as per ViaVersion docs)
-            // Log for debugging
+            // ignore
         }
         
         return -1;
     }
     
-    /**
-     * Converts a protocol version number to a readable Minecraft version string
-     * Based on: https://minecraft.wiki/w/Protocol_version
-     */
     public static String protocolToVersion(int protocolVersion) {
         Map<Integer, String> versionMap = new HashMap<>();
         
@@ -198,27 +176,16 @@ public class ViaVersionDetector {
         return "Protocol " + protocolVersion;
     }
     
-    /**
-     * Collects the version distribution of all online players.
-     * Uses ViaVersion to get each player's protocol version and converts it
-     * to a readable Minecraft version string.
-     * 
-     * @return A map of version strings to player counts, or null if ViaVersion is unavailable
-     */
     public static Map<String, Integer> collectVersionDistribution() {
         if (!isViaVersionAvailable()) {
             return null;
         }
         
         Map<String, Integer> versionDistribution = new HashMap<>();
-        int playersChecked = 0;
-        int versionsFound = 0;
         
         for (Player player : Bukkit.getOnlinePlayers()) {
-            playersChecked++;
             int protocolVersion = getPlayerProtocolVersion(player);
             if (protocolVersion > 0) {
-                versionsFound++;
                 String version = protocolToVersion(protocolVersion);
                 versionDistribution.put(version, versionDistribution.getOrDefault(version, 0) + 1);
             }
