@@ -140,7 +140,7 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleSetup(CommandSender sender, String code) {
-        String minecraftUser = (sender instanceof Player) 
+        final String minecraftUser = (sender instanceof Player) 
             ? ((Player) sender).getName() 
             : "CONSOLE";
 
@@ -148,7 +148,9 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
         if (serverIp == null || serverIp.isEmpty()) {
             serverIp = "localhost";
         }
-        int serverPort = sender.getServer().getPort();
+        final String finalServerIp = serverIp;
+        final int serverPort = sender.getServer().getPort();
+        final String finalCode = code;
 
         sender.sendMessage("§7[§6Statsly§7] §eValidating code...");
 
@@ -164,7 +166,7 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
                 
                 String jsonPayload = String.format(
                     "{\"code\":\"%s\",\"minecraftUser\":\"%s\",\"serverIp\":\"%s\",\"serverPort\":%d}",
-                    code, minecraftUser, serverIp, serverPort
+                    finalCode, minecraftUser, finalServerIp, serverPort
                 );
 
                 try (OutputStream os = conn.getOutputStream()) {
@@ -187,7 +189,6 @@ public class StatixCommand implements CommandExecutor, TabCompleter {
                 } catch (Exception readErr) {
                 }
                 
-                String finalCode = code;
                 String finalResponseBody = responseBody;
                 org.bukkit.Bukkit.getServer().getScheduler().runTask(plugin, () -> {
                     if (responseCode == 200) {
